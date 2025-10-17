@@ -53,8 +53,27 @@ const Index = () => {
   const [responses, setResponses] = useState<Record<string, AIResponse>>({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (prompt: string) => {
+  const handleSubmit = async (prompt: string, files: File[]) => {
     setIsLoading(true);
+
+    // Convert files to base64
+    const filePromises = files.map(async (file) => {
+      return new Promise<{ type: string; data: string; name: string }>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64 = (reader.result as string).split(',')[1];
+          resolve({
+            type: file.type,
+            data: base64,
+            name: file.name
+          });
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    });
+
+    const fileData = await Promise.all(filePromises);
 
     // Initialize all responses as loading
     const initialResponses: Record<string, AIResponse> = {};
@@ -83,6 +102,7 @@ const Index = () => {
             body: JSON.stringify({
               prompt,
               model: model.model,
+              files: fileData,
             }),
           }
         );

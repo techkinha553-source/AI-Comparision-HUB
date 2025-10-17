@@ -12,12 +12,12 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, model } = await req.json();
+    const { prompt, model, files } = await req.json();
     
     console.log(`Processing request for model: ${model}`);
     
-    if (!prompt) {
-      throw new Error("Prompt is required");
+    if (!prompt && (!files || files.length === 0)) {
+      throw new Error("Prompt or files are required");
     }
 
     if (!model) {
@@ -31,6 +31,36 @@ serve(async (req) => {
 
     console.log(`Calling AI Gateway with model: ${model}`);
     
+    // Build message content with text and images
+    const messageContent: any[] = [];
+    
+    if (prompt) {
+      messageContent.push({
+        type: "text",
+        text: prompt
+      });
+    }
+
+    // Add image files if present
+    if (files && files.length > 0) {
+      for (const file of files) {
+        if (file.type.startsWith("image/")) {
+          messageContent.push({
+            type: "image_url",
+            image_url: {
+              url: `data:${file.type};base64,${file.data}`
+            }
+          });
+        } else {
+          // For non-image files, add them as text description
+          messageContent.push({
+            type: "text",
+            text: `[Attached file: ${file.name}]`
+          });
+        }
+      }
+    }
+    
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -41,7 +71,7 @@ serve(async (req) => {
         model: model,
         messages: [
           { role: "system", content: "You are a helpful AI assistant. Keep your responses clear and concise." },
-          { role: "user", content: prompt }
+          { role: "user", content: messageContent }
         ],
         stream: false,
       }),
