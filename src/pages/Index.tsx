@@ -13,15 +13,27 @@ interface AIResponse {
 const AI_MODELS = [
   {
     name: "GPT-5",
-    model: "openai/gpt-5-mini-2025-08-07",
+    model: "openai/gpt-5",
     color: "#10a37f",
     key: "gpt5",
+  },
+  {
+    name: "GPT-5 Mini",
+    model: "openai/gpt-5-mini",
+    color: "#15b088",
+    key: "gpt5-mini",
+  },
+  {
+    name: "GPT-5 Nano",
+    model: "openai/gpt-5-nano",
+    color: "#20c997",
+    key: "gpt5-nano",
   },
   {
     name: "Gemini Pro",
     model: "google/gemini-2.5-pro",
     color: "#4285f4",
-    key: "gemini",
+    key: "gemini-pro",
   },
   {
     name: "Gemini Flash",
@@ -30,10 +42,10 @@ const AI_MODELS = [
     key: "gemini-flash",
   },
   {
-    name: "Claude",
-    model: "claude-sonnet-4-5",
-    color: "#c97a4a",
-    key: "claude",
+    name: "Gemini Lite",
+    model: "google/gemini-2.5-flash-lite",
+    color: "#34a853",
+    key: "gemini-lite",
   },
 ];
 
@@ -138,7 +150,7 @@ const Index = () => {
         </section>
 
         {/* Comparison Grid */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {AI_MODELS.map((model) => (
             <AIComparisonCard
               key={model.key}
